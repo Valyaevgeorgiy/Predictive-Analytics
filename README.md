@@ -1,8 +1,6 @@
 ## Housing Price Prediction Model
 
-Лекции и тех задание на семинары доступны на [Я.диске](https://disk.yandex.ru/d/vDb3HPumZ2xK0w)  
-
-Ссылки на свои репо присылайте на ailabintsev@fa.ru  
+Тех задание на [Я.диске](https://disk.yandex.ru/d/vDb3HPumZ2xK0w)
 
 ### Описание проекта
 Проект направлен на создание модели машинного обучения для прогнозирования цен на жилье. Модель использует различные характеристики объектов недвижимости для предсказания их рыночной стоимости.
@@ -88,6 +86,5 @@ jupyter notebook
 
 ### Контакты
 Для вопросов и предложений обращайтесь:
-* Email: your.email@example.com
-* GitHub: @yourusername
-* LinkedIn: linkedin.com/in/yourusername
+* Email: valyaev02gg@gmail.com
+* GitHub: @Valayevgeorgiy
