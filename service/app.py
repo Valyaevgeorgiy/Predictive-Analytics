@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request 
 from logging.config import dictConfig
+import joblib
 
 dictConfig(
     {
@@ -27,6 +28,11 @@ dictConfig(
 
 app = Flask(__name__)
 
+# Сохранение модели
+# model_path = 'models/linear_regression_model.pkl'
+
+# loaded_model = joblib.load(model_path)
+
 # Маршрут для отображения формы
 @app.route('/')
 def index():
@@ -41,10 +47,12 @@ def process_numbers():
     
     app.logger.info(f'Requst data: {data}')
     
-    return {
-        'status': 'success',    
-        'data': 'Числа успешно обработаны'
-    }
+    try:
+        price = float(data['area']) * 300_000
+    except ValueError:
+        return {'status': 'error', 'data': 'Ошибка парсинга данных'}
+    
+    return {'status': 'success', 'data': price}
 
 if __name__ == '__main__':
     app.run(debug=True)
