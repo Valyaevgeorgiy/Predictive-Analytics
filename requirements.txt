@@ -1,3 +1,6 @@
 cianparser
 pandas
 flask
+jupyter
+scikit-learn
+matplotlib

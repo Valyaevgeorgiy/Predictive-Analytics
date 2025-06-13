@@ -12,12 +12,15 @@ housing_price_prediction/
 │   ├── raw/                # Исходные данные
 │   ├── processed/          # Обработанные данные
 ├── models/                 # Обученные модели
-├── notebooks/             # Jupyter notebooks
-├── src/                   # Исходный код
-│   ├── data.py            # Обработка данных
-│   ├── models.py          # Модели машинного обучения
-│   └── utils.py           # Вспомогательные функции
-├── requirements.txt       # Требования к зависимостям
+├── notebooks/              # Jupyter notebooks
+├── service/                # Сервис предсказания цены на недвижимость
+│   ├── templates/          # Шаблоны для веб-приложения
+│   └── app.py              # Flask приложение
+├── src/                    # Исходный кодAdd commentMore actions
+│   ├── data.py             # Обработка данных
+│   ├── models.py           # Модели машинного обучения
+│   └── utils.py            # Вспомогательные функции
+├── requirements.txt        # Требования к зависимостям
 └── README.md
 ```
 
