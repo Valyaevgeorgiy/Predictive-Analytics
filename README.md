@@ -30,7 +30,7 @@ housing_price_prediction/
 ### Как запустить
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/yourusername/housing_price_prediction.git
+git clone https://github.com/Valyaevgeorgiy/Predictive-Analytics.git
 ```
 
 2. Создайте venv и установите зависимости:

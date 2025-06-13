@@ -191,7 +191,7 @@ if __name__ == '__main__':
         default=TEST_SIZE,
     )
     
-    parser.add_argument(Add commentMore actions
+    parser.add_argument(
         "-n", "--n_rooms", help="Number of rooms to parse", type=int, default=N_ROOMS
     )
     
