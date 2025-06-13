@@ -4,3 +4,4 @@ flask
 jupyter
 scikit-learn
 matplotlib
+black

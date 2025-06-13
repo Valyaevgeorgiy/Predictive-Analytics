@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request 
+import argparse
+from flask import Flask, render_template, request
 from logging.config import dictConfig
 import joblib
 
@@ -29,12 +30,10 @@ dictConfig(
 app = Flask(__name__)
 
 # Сохранение модели
-model_path = 'models/linear_regression_model.pkl'
-
-loaded_model = joblib.load(model_path)
+MODEL_NAME = "models/linear_regression_v3.pkl"
 
 # Маршрут для отображения формы
-@app.route('/')
+@app.route("/")
 def index():
     return render_template('index.html')
 
@@ -45,16 +44,42 @@ def process_numbers():
     # Для примера просто возвращаем их обратно
     data = request.get_json()
     
-    app.logger.info(f'Requst data: {data}')
+    app.logger.info(f"Requst data: {data}")
     
-    try:
-        area = float(data['area']) 
-        price = loaded_model.predict([[area]])[0]
-        price = int(price)
+    try:        
+        total_meters = float(data["area"])
+        floors_count = int(data["total_floors"])
+        rooms_1 = int(data["rooms"]) == 1
+        rooms_2 = int(data["rooms"]) == 2
+        rooms_3 = int(data["rooms"]) == 3
+        first_floor = int(data["floor"]) == 1
+        last_floor = int(data["floor"]) == floors_count
     except ValueError:
-        return {'status': 'error', 'data': 'Ошибка парсинга данных'}
-    
-    return {'status': 'success', 'data': price}
+        return {"status": "error", "data": "Ошибка парсинга данных"}
 
-if __name__ == '__main__':
+    price = app.config["model"].predict(
+        [
+            [
+                total_meters,
+                floors_count,
+                rooms_1,
+                rooms_2,
+                rooms_3,
+                first_floor,
+                last_floor,
+            ]
+        ]
+    )[0]
+    price = int(price)
+    return {"status": "success", "data": price}
+
+
+if __name__ == "__main__":
+    """Parse arguments and run lifecycle steps"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-m", "--model", help="Model name", default=MODEL_NAME)
+    args = parser.parse_args()
+
+    app.config["model"] = joblib.load(args.model)
+    app.logger.info(f"Use model: {args.model}")
     app.run(debug=True)

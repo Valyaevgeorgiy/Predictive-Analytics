@@ -79,12 +79,12 @@
                     if (price > 0) {
                         const price_millions = parseInt(price / 1000_000);
                         const price_thousands = parseInt((price % 1000_000) / 1000);
-                        document.getElementById('response').innerText = 'Примерная цена: ' + price_millions + ' млн ' + price_thousands + ' тыc руб.';
+                        document.getElementById('response').innerText = '\n\nПримерная цена: ' + price_millions + ' млн ' + price_thousands + ' тыc руб.';
                     } else {
-                        document.getElementById('response').innerText = 'Предсказана отрицательная цена.'
+                        document.getElementById('response').innerText = '\n\nПредсказана отрицательная цена.'
                     }
                } else {
-                    document.getElementById('response').innerText = 'Ошибка при обработке данных на сервере';
+                    document.getElementById('response').innerText = '\n\nОшибка при обработке данных на сервере';
                 }
                 
             })
