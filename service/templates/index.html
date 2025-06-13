@@ -65,9 +65,6 @@
                 floor: num4
             };
 
-            const area = Number(data.area);             // преобразовали текст в число
-            const price = area * 300_000;               // умножили
-
             fetch('/api/numbers', {
                 method: 'POST',
                 headers: {
@@ -77,7 +74,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('response').innerText = `\n\nСтоимость квартиры = ${price} рублей`;
+                if (data['status'] == 'success'){
+                    const price = parseInt(data['data']);
+                    if (price > 0) {
+                        const price_millions = parseInt(price / 1000_000);
+                        const price_thousands = parseInt((price % 1000_000) / 1000);
+                        document.getElementById('response').innerText = 'Примерная цена: ' + price_millions + ' млн ' + price_thousands + ' тыc руб.';
+                    } else {
+                        document.getElementById('response').innerText = 'Предсказана отрицательная цена.'
+                    }
+               } else {
+                    document.getElementById('response').innerText = 'Ошибка при обработке данных на сервере';
+                }
+                
             })
             .catch(error => {
                 console.error('Ошибка:', error);

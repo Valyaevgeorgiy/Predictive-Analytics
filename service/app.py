@@ -29,9 +29,9 @@ dictConfig(
 app = Flask(__name__)
 
 # Сохранение модели
-# model_path = 'models/linear_regression_model.pkl'
+model_path = 'models/linear_regression_model.pkl'
 
-# loaded_model = joblib.load(model_path)
+loaded_model = joblib.load(model_path)
 
 # Маршрут для отображения формы
 @app.route('/')
@@ -48,7 +48,9 @@ def process_numbers():
     app.logger.info(f'Requst data: {data}')
     
     try:
-        price = float(data['area']) * 300_000
+        area = float(data['area']) 
+        price = loaded_model.predict([[area]])[0]
+        price = int(price)
     except ValueError:
         return {'status': 'error', 'data': 'Ошибка парсинга данных'}
     
