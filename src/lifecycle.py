@@ -17,13 +17,13 @@ import logging
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error
 
 TEST_SIZE = 0.2
 N_ROOMS = 1 # just for the parsing step
-MODEL_NAME = "linear_regression_v3.pkl"
+MODEL_NAME = "decision_tree_reg_1.pkl"
 
 logging.basicConfig(
     filename="train.log",
@@ -120,9 +120,11 @@ def train_model(model_path):
         ]
     ]
     y = train_df["price"]
-    model = LinearRegression()
-    model.fit(X, y)
+    model = DecisionTreeRegressor(max_depth=5)
+    model.fit(X.values, y)
 
+    logging.info(f"Train {model} and save to {model_path}")
+    
     joblib.dump(model, model_path)
 
     logging.info(f"Train model. Total meters coef: {model.coef_[0]:.2f}")
