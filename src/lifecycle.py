@@ -12,6 +12,7 @@ import argparse
 import datetime
 import glob
 import os
+
 import cianparser
 import logging
 import joblib
@@ -22,7 +23,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
 TEST_SIZE = 0.2
-N_ROOMS = 1 # just for the parsing step
+N_ROOMS = 1  # just for the parsing step
 MODEL_NAME = "decision_tree_reg_1.pkl"
 
 logging.basicConfig(
@@ -32,6 +33,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     level=logging.DEBUG,
 )
+
 
 def parse_cian(n_rooms=1):
     """
@@ -64,7 +66,6 @@ def preprocess_data(test_size):
     """
     raw_data_path = "./data/raw"
     file_list = glob.glob(raw_data_path + "/*.csv")
-    
     logging.info(f"Preprocess_data. Use files to train: {file_list}")
     df = pd.read_csv(file_list[0])
     for i in range(1, len(file_list)):
@@ -96,7 +97,6 @@ def preprocess_data(test_size):
     train_head = "\n" + str(train_df.head())
     logging.info(train_head)
     logging.info(f"Preprocess_data. test_df: {len(test_df)} samples")
-    
     test_head = "\n" + str(test_df.head())
     logging.info(test_head)
 
@@ -107,7 +107,6 @@ def preprocess_data(test_size):
 def train_model(model_path):
     """Train model and save with MODEL_NAME"""
     train_df = pd.read_csv("data/processed/train.csv")
-    
     X = train_df[
         [
             "total_meters",
@@ -124,19 +123,14 @@ def train_model(model_path):
     model.fit(X.values, y)
 
     logging.info(f"Train {model} and save to {model_path}")
-    
-    joblib.dump(model, model_path)
 
-    logging.info(f"Train model. Total meters coef: {model.coef_[0]:.2f}")
-    logging.info(f"Other coefs: {model.coef_[1:]}")
-    logging.info(f"Train model. Bias: {model.intercept_:.2f}")
+    joblib.dump(model, model_path)
 
 
 def test_model(model_path):
     """Test model with new data"""
     test_df = pd.read_csv("data/processed/test.csv")
     train_df = pd.read_csv("data/processed/train.csv")
-    
     X_test = test_df[
         [
             "total_meters",
@@ -149,7 +143,6 @@ def test_model(model_path):
         ]
     ]
     y_test = test_df["price"]
-    
     X_train = train_df[
         [
             "total_meters",
@@ -163,7 +156,6 @@ def test_model(model_path):
     ]
     y_train = train_df["price"]
     model = joblib.load(model_path)
-    
     # Предсказание на тестовой выборке
     y_pred = model.predict(X_test)
 
@@ -181,10 +173,9 @@ def test_model(model_path):
     logging.info(f"Test model. R2 test: {r2_test:.2f}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Parse arguments and run lifecycle steps"""
     parser = argparse.ArgumentParser()
-    
     parser.add_argument(
         "-s",
         "--split",
@@ -192,17 +183,13 @@ if __name__ == '__main__':
         help="Split data, test size, from 0 to 0.5",
         default=TEST_SIZE,
     )
-    
     parser.add_argument(
         "-n", "--n_rooms", help="Number of rooms to parse", type=int, default=N_ROOMS
     )
-    
     parser.add_argument("-m", "--model", help="Model name", default=MODEL_NAME)
-    
     parser.add_argument(
         "-p", "--parse_data", help="Flag to parse new data", action="store_true"
     )
-    
     args = parser.parse_args()
 
     test_size = float(args.split)
@@ -211,7 +198,6 @@ if __name__ == '__main__':
 
     if args.parse_data:
         parse_cian(args.n_rooms)
-        
     preprocess_data(test_size)
     train_model(model_path)
     test_model(model_path)
