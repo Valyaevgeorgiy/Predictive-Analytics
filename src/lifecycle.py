@@ -18,13 +18,15 @@ import logging
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+from sklearn.linear_model import RidgeCV
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score
 
 TEST_SIZE = 0.2
 N_ROOMS = 1  # just for the parsing step
-MODEL_NAME = "decision_tree_reg_1.pkl"
+MODEL_NAME = "linear_regression_v4.pkl"
 
 logging.basicConfig(
     filename="train.log",
@@ -119,8 +121,23 @@ def train_model(model_path):
         ]
     ]
     y = train_df["price"]
-    model = DecisionTreeRegressor(max_depth=5)
-    model.fit(X.values, y)
+    
+    # Pipeline: масштабирование + подбор α для Ridge
+    alphas = np.logspace(-3, 3, 13)
+    model = Pipeline([
+        ("scaler", StandardScaler()),
+        ("ridge", RidgeCV(alphas=alphas, cv=5))
+    ])
+    
+    # Обучаем
+    model.fit(X, y)
+    best_alpha = model.named_steps["ridge"].alpha_
+    logging.info(f"Best alpha for Ridge: {best_alpha}")
+    
+    # Оценка стабильности через CV
+    scores = cross_val_score(model, X, y, cv=5, scoring="r2")
+    logging.info(f"Cross-val R2 scores: {scores}")
+    logging.info(f"Mean R2: {scores.mean():.3f} ± {scores.std():.3f}")
 
     logging.info(f"Train {model} and save to {model_path}")
 
