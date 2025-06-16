@@ -18,15 +18,20 @@ import logging
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import RidgeCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.linear_model import Ridge
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.compose import TransformedTargetRegressor
+from sklearn.linear_model import Ridge, ElasticNet
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, ExtraTreesRegressor, HistGradientBoostingRegressor
+from sklearn.compose import TransformedTargetRegressor
 
 TEST_SIZE = 0.2
 N_ROOMS = 1  # just for the parsing step
-MODEL_NAME = "linear_regression_v4.pkl"
+MODEL_NAME = "best_regression_v1.pkl"
 
 logging.basicConfig(
     filename="train.log",
@@ -122,26 +127,78 @@ def train_model(model_path):
     ]
     y = train_df["price"]
     
-    # Pipeline: масштабирование + подбор α для Ridge
-    alphas = np.logspace(-3, 3, 13)
-    model = Pipeline([
-        ("scaler", StandardScaler()),
-        ("ridge", RidgeCV(alphas=alphas, cv=5))
+    # Определение пайплайна и сетки гиперпараметров
+    # Базовый pipeline
+    base_pipe = Pipeline([
+        ('scaler', StandardScaler()),
+        ('reg', Ridge())
     ])
+    # Обёртка для лог-трансформации таргета
+    ttr = TransformedTargetRegressor(
+        regressor=base_pipe,
+        func=np.log1p,
+        inverse_func=np.expm1
+    )
+
+    # GridSearchCV по разным моделям
+    # Сетка гиперпараметров
+    param_grid = [
+        # Ridge
+        {
+            'regressor__reg': [Ridge()],
+            'regressor__reg__alpha': np.logspace(-3, 3, 13)
+        },
+        # ElasticNet
+        {
+            'regressor__reg': [ElasticNet(max_iter=10000, random_state=42)],
+            'regressor__reg__alpha': np.logspace(-4, 1, 10),
+            'regressor__reg__l1_ratio': [0.1, 0.5, 0.9]
+        },
+        # RandomForest
+        {
+            'regressor__reg': [RandomForestRegressor(random_state=42)],
+            'regressor__reg__n_estimators': [100, 200],
+            'regressor__reg__max_depth': [None, 10, 20]
+        },
+        # ExtraTrees
+        {
+            'regressor__reg': [ExtraTreesRegressor(random_state=42)],
+            'regressor__reg__n_estimators': [100, 200],
+            'regressor__reg__max_depth': [None, 10, 20]
+        },
+        # GradientBoosting
+        {
+            'regressor__reg': [GradientBoostingRegressor(random_state=42)],
+            'regressor__reg__n_estimators': [100, 200],
+            'regressor__reg__learning_rate': [0.01, 0.1],
+            'regressor__reg__max_depth': [3, 5]
+        },
+        # HistGradientBoosting
+        {
+            'regressor__reg': [HistGradientBoostingRegressor(random_state=42)],
+            'regressor__reg__max_iter': [100, 200],
+            'regressor__reg__max_depth': [None, 10, 20]
+        }
+    ]
+    
+    model = GridSearchCV(
+        estimator=ttr,
+        param_grid=param_grid,
+        cv=5,
+        scoring='r2',
+        n_jobs=-1,
+        verbose=1
+    )
     
     # Обучаем
     model.fit(X, y)
-    best_alpha = model.named_steps["ridge"].alpha_
-    logging.info(f"Best alpha for Ridge: {best_alpha}")
-    
-    # Оценка стабильности через CV
-    scores = cross_val_score(model, X, y, cv=5, scoring="r2")
-    logging.info(f"Cross-val R2 scores: {scores}")
-    logging.info(f"Mean R2: {scores.mean():.3f} ± {scores.std():.3f}")
+    best = model.best_estimator_
+    logging.info(f"Best params: {model.best_params_}")
+    logging.info(f"Best CV R2: {model.best_score_:.3f}")
 
     logging.info(f"Train {model} and save to {model_path}")
 
-    joblib.dump(model, model_path)
+    joblib.dump(best, model_path)
 
 
 def test_model(model_path):
@@ -173,21 +230,19 @@ def test_model(model_path):
     ]
     y_train = train_df["price"]
     model = joblib.load(model_path)
+    
     # Предсказание на тестовой выборке
-    y_pred = model.predict(X_test)
+    y_test_pred = model.predict(X_test)
 
     # Оценка модели
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = np.sqrt(mse)
-    mae = np.mean(np.abs(y_test - y_pred))
-    r2_train = model.score(X_train, y_train)
-    r2_test = model.score(X_test, y_test)
-
-    logging.info(f"Test model. MSE: {mse:.2f}")
-    logging.info(f"Test model. RMSE: {rmse:.2f}")
-    logging.info(f"Test model. MAE: {mae:.2f}")
-    logging.info(f"Test model. R2 train: {r2_train:.2f}")
-    logging.info(f"Test model. R2 test: {r2_test:.2f}")
+    mse_te = mean_squared_error(y_test, y_test_pred)
+    rmse_te = np.sqrt(mse_te)
+    mae_te = mean_absolute_error(y_test, y_test_pred)
+    r2_te = r2_score(y_test, y_test_pred)
+    logging.info(f"Test MSE: {mse_te:.2f}")
+    logging.info(f"Test RMSE: {rmse_te:.2f}")
+    logging.info(f"Test MAE: {mae_te:.2f}")
+    logging.info(f"Test R2: {r2_te:.3f}")
 
 
 if __name__ == "__main__":
