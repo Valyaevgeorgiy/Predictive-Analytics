@@ -17,8 +17,7 @@ import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
 
-
-MODEL_NAME = "decision_tree_reg_1.pkl"
+MODEL_NAME = "best_regression_v1.pkl"
 
 logging.basicConfig(
     filename="train.log",

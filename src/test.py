@@ -24,7 +24,7 @@ from sklearn.metrics import mean_squared_error
 
 TEST_SIZE = 0.2
 N_ROOMS = 1  # just for the parsing step
-MODEL_NAME = "decision_tree_reg_1.pkl"
+MODEL_NAME = "best_regression_v1.pkl"
 
 logging.basicConfig(
     filename="train.log",

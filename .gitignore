@@ -1,6 +1,10 @@
 venv
-data
+data/processed/train.csv
+data/processed/test.csv
+data/raw
 *.log
 notebooks/.ipynb_checkpoints
 __pycache__/
-models
+models/decision_tree_reg_1.pkl
+models/linear_regression_v3.pkl
+models/linear_regression_v4.pkl
