@@ -30,7 +30,7 @@ dictConfig(
 app = Flask(__name__)
 
 # Сохранение модели
-MODEL_NAME = "models\linear_regression_v4.pkl"
+MODEL_NAME = "models\best_regression_v1.pkl"
 
 # Маршрут для отображения формы
 @app.route("/")
