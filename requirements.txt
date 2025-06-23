@@ -6,3 +6,4 @@ scikit-learn
 matplotlib
 black
 dvc
+boto3

@@ -3,8 +3,11 @@ data/processed/train.csv
 data/processed/test.csv
 data/raw
 *.log
+*.env
 notebooks/.ipynb_checkpoints
 __pycache__/
+airflow-docker/logs
+airflow-docker/plugins
 models/decision_tree_reg_1.pkl
 models/linear_regression_v3.pkl
 models/linear_regression_v4.pkl
